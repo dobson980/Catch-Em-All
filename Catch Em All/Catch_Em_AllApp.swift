@@ -11,7 +11,7 @@ import SwiftUI
 struct Catch_Em_AllApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            CreaturesListView()
         }
     }
 }
