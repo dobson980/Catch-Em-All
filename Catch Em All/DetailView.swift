@@ -26,32 +26,7 @@ struct DetailView: View {
                 .padding(.bottom)
             
             HStack {
-                
-                AsyncImage(url: URL(string: creatureDetailViewModel.imageURL)) { image in
-                    image
-                        .resizable()
-                        .scaledToFit()
-                        .background(.white)
-                        .frame(width: 96, height: 96)
-                        .cornerRadius(16)
-                        .shadow(radius: 8, x:5, y: 5)
-                        .overlay {
-                            RoundedRectangle(cornerRadius: 16)
-                                .stroke(.gray.opacity(0.5), lineWidth: 1)
-                            
-                                
-                        }
-                        .padding(.trailing)
-                } placeholder: {
-                    Rectangle()
-                        .foregroundColor(.clear)
-                        .frame(width: 96, height: 96)
-                        .padding(.trailing)
-                }
-
-                
-//                Image(systemName: "figure.run.circle")
-
+                creatureImage
                 
                 VStack(alignment: .leading) {
                     HStack(alignment: .top) {
@@ -88,6 +63,50 @@ struct DetailView: View {
         .task {
             creatureDetailViewModel.urlString = creature.url
             await creatureDetailViewModel.getData()
+        }
+    }
+}
+
+extension DetailView {
+    var creatureImage: some View {
+        AsyncImage(url: URL(string: creatureDetailViewModel.imageURL)) { phase in
+            if let image = phase.image {
+                
+                let _ = print("VALID IMAGE")
+                
+                image
+                    .resizable()
+                    .scaledToFit()
+                    .background(.white)
+                    .frame(width: 96, height: 96)
+                    .cornerRadius(16)
+                    .shadow(radius: 8, x:5, y: 5)
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(.gray.opacity(0.5), lineWidth: 1)
+                    }
+                    .padding(.trailing)
+            } else if phase.error != nil {
+                let _ = print("!!! ERROR LOADING IMAGE !!!")
+                Image(systemName: "questionmark.square")
+                    .resizable()
+                    .scaledToFit()
+//                    .background(.white)
+                    .frame(width: 96, height: 96)
+                    .cornerRadius(16)
+                    .shadow(radius: 8, x:5, y: 5)
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(.gray.opacity(0.5), lineWidth: 1)
+                    }
+                    .padding(.trailing)
+            } else {
+                let _ = print("PLACEHOLDER IMAGE")
+                Rectangle()
+                    .foregroundColor(.clear)
+                    .frame(width: 96, height: 96)
+                    .padding(.trailing)
+            }
         }
     }
 }

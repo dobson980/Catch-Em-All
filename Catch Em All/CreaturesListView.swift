@@ -10,26 +10,32 @@ import SwiftUI
 struct CreaturesListView: View {
     
     @StateObject var creaturesVM = CreaturesViewModel()
+    @State private var searchText = ""
     
     var body: some View {
+        
+        var searchResults: [Creature] {
+            if searchText.isEmpty {
+                return creaturesVM.creatures
+            } else {
+                return creaturesVM.creatures.filter {$0.name.capitalized.contains(searchText)}
+            }
+        }
+        
         NavigationStack {
             ZStack {
-                List(0..<creaturesVM.creatures.count, id: \.self) { index in
+                List(searchResults) { creature in
                     LazyVStack {
                         NavigationLink {
-                            DetailView(creature: creaturesVM.creatures[index])
+                            DetailView(creature: creature)
                         } label: {
-                            Text("\(index+1). \(creaturesVM.creatures[index].name.capitalized)")
+                            Text(creature.name.capitalized)
                                 .font(.title2)
                         }
                     }
                     .onAppear() {
-                        if let lastCreature = creaturesVM.creatures.last {
-                            if creaturesVM.creatures[index].name == lastCreature.name && creaturesVM.urlString.hasPrefix("http") {
-                                Task {
-                                    await creaturesVM.getData()
-                                }
-                            }
+                        Task {
+                            await creaturesVM.loadNextIfNeed(creature: creature)
                         }
                     }
                 }
@@ -49,15 +55,17 @@ struct CreaturesListView: View {
                         Text("\(creaturesVM.creatures.count) of \(creaturesVM.count)")
                     }
                     
-
+                    
                 }
+                .searchable(text: $searchText)
+                .disableAutocorrection(true)
                 
                 if creaturesVM.isLoading {
                     ProgressView()
                         .tint(.red)
                         .scaleEffect(4)
                 }
-
+                
             }
         }
         .task {
