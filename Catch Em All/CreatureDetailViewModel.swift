@@ -17,6 +17,19 @@ class CreatureDetailViewModel: ObservableObject {
     }
     
     struct Sprite: Codable {
+        var front_default: String?
+        var other: Other
+    }
+    
+    struct Other: Codable {
+        var officialArtwork: OfficialArtwork
+        
+        enum CodingKeys: String, CodingKey {
+            case officialArtwork = "official-artwork"
+        }
+    }
+    
+    struct OfficialArtwork: Codable {
         var front_default: String
     }
     
@@ -42,7 +55,7 @@ class CreatureDetailViewModel: ObservableObject {
             }
             self.height =  dataResponse.height
             self.weight =  dataResponse.weight
-            self.imageURL = dataResponse.sprites.front_default
+            self.imageURL = dataResponse.sprites.other.officialArtwork.front_default
         } catch {
             print("ERROR: Could not get data from \(urlString)")
         }
